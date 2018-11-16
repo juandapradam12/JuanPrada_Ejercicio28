@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include "mpi.h"
 
+/* git commit -m "Second commit" */
+
 /* COMPILO CON mpicc integra.c -o integra.x -lm Y EJECUTO CON mpiexec -n 4 ./integra.x N */
 
 double f(double x)
@@ -71,4 +73,3 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
-
