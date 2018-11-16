@@ -27,7 +27,9 @@ double MCI(int N)
 	double *x;
 	x = malloc(sizeof(double *)*N);
 
-	for(int i = 0; i < N; i++)
+	int i; 
+
+	for(i = 0; i < N; i++)
 	{
             	x[i] = n_rand(0.05);
     	}
@@ -35,14 +37,14 @@ double MCI(int N)
 	double *F; 
 	F = malloc(sizeof(double *)*N);
 
-	for(int i = 0; i < N; i++)
+	for(i = 0; i < N; i++)
 	{
             	F[i] = f(x[i]);
     	}
 
 	double sum = 0.0;
 	
-	for(int i = 0; i < N; i++)
+	for(i = 0; i < N; i++)
 	{
             	sum = sum + F[i];
     	}
