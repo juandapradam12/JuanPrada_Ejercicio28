@@ -45,7 +45,9 @@ jobs:
           test -f figures/bakery_temporal_traffic.png
           test -f figures/bakery_hourly_item_rates.png
           test -f figures/bakery_cluster_by_hour.png
+          test -f figures/bakery_item_cooccurrence.png
           test -f outputs/dengue_supervised_metrics.csv
+          test -f outputs/bakery_frequent_itemsets.csv
 
   mpi:
     runs-on: ubuntu-latest
@@ -73,3 +75,6 @@ jobs:
           make -C mpi scaling MPIEXEC=mpirun
           test -f figures/mpi_strong_scaling.png
           test -f outputs/mpi_scaling.csv
+          make -C mpi vr MPIEXEC=mpirun NP=2
+          test -f figures/monte_carlo_variance_reduction.png
+          test -f outputs/monte_carlo_vr_comparison.csv

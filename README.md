@@ -22,8 +22,8 @@ This repository turns exploratory coursework into a **reproducible analytics pac
 - **Geospatial dengue map** of clusters vs historical prevalence in lon/lat space
 - **External validation** (Adjusted Rand Index / NMI) against `NoYes` dengue prevalence
 - **Supervised companion** — logistic regression + random forest on climate features → `NoYes` (labels never used in clustering)
-- **Bakery basket mining** with SVD occasions, association rules, and **time-of-day / weekday** traffic + item seasonality
-- **MPI programs**: rectangle-rule \(\pi\), Monte Carlo for \(\int_0^1 e^{x}\sin(x)\,dx\), plus **strong-scaling** study
+- **Bakery basket mining** with SVD occasions, **FP-Growth** association rules, co-occurrence heatmaps, and **time-of-day / weekday** traffic
+- **MPI programs**: rectangle-rule \(\pi\), Monte Carlo for \(\int_0^1 e^{x}\sin(x)\,dx\) with **variance reduction** (antithetic / control / importance) and **strong-scaling**
 - **Tests + CI**: `pytest` and GitHub Actions for the Python pipeline and MPI smoke/scaling builds
 - **Packaging**: `Dockerfile`, `environment.yml`, MIT `LICENSE`, `CITATION.cff`
 - **One-command reproduction**: `python run_analysis.py` and `make -C mpi convergence`
@@ -63,6 +63,7 @@ make -C mpi run-pi      # parallel π
 make -C mpi run-mc      # Monte Carlo estimate
 make -C mpi convergence # sweep N + error plot → figures/monte_carlo_relative_error.png
 make -C mpi scaling     # strong scaling → figures/mpi_strong_scaling.png
+make -C mpi vr          # variance-reduction comparison plot
 ```
 
 HPC / Torque helpers: `torque.sh` (π), `torque2.sh` (Monte Carlo study).
@@ -130,8 +131,8 @@ Full write-up: [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md).
 | Dengue structure vs label | ARI ≈ **0.42**, NMI ≈ **0.43** (clusters unused `NoYes` at fit time) |
 | Supervised companion | Climate → `NoYes` ROC-AUC ≈ **0.95 (LR)** / **0.99 (RF)** (5-fold CV); top feature `h10pix` |
 | Bakery occasions | Interpretable \(K^\star\) ≈ **6** purchase occasions; peak hour ≈ **11** |
-| Top association rule | **Toast → Coffee** (confidence ≈ 0.70, lift ≈ 1.47) |
-| Monte Carlo | Relative error ≈ **0.03%** at \(N=10^7\) (4 ranks) |
+| Top association rule | FP-Growth: **Toast → Coffee** (confidence ≈ 0.70, lift ≈ 1.47) |
+| Monte Carlo VR | Antithetic ≈ **0.005%** error at \(N=10^6\) vs crude ≈ **0.065%** |
 
 After `python run_analysis.py` and `make -C mpi convergence` you should see:
 

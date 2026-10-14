@@ -13,3 +13,5 @@ dependencies:
   - openmpi
   - compilers
   - pip
+  - pip:
+      - mlxtend>=0.23

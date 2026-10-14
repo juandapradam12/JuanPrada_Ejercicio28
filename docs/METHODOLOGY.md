@@ -89,15 +89,16 @@ Represent transactions as item baskets, find purchase occasions, and surface pro
 
 The original draft explored \(K \in [80, 100]\) and reported \(K=97\), which over-fragments ~9k transactions and yields unstable “occasions”.
 
-### Association rules
+### Association rules (FP-Growth)
 
-Lightweight Apriori-style mining (pairs, optional triples):
+Primary engine: **FP-Growth** via `mlxtend` (Apriori-style fallback if unavailable):
 
 - `min_support` (default 0.02)  
 - `min_confidence` (default 0.35)  
 - Rank by **lift**, then confidence, then support  
+- Export frequent itemsets + a top-item **co-occurrence heatmap**
 
-Rules answer questions such as “given pastry, how much more likely is coffee?”
+Rules answer questions such as “given toast, how much more likely is coffee?”
 
 ### Time-aware bakery views
 
@@ -131,6 +132,17 @@ I = \int_0^1 e^{x}\sin(x)\,dx
 \]
 
 with uniform samples on \([0,1]\). Each rank draws a share of \(N\) samples (`rand_r` with distinct seeds); sums reduce to rank 0.
+
+Optional variance-reduction methods (CLI arg):
+
+| Method | Estimator idea |
+| --- | --- |
+| `crude` | \(f(U),\ U\sim U(0,1)\) |
+| `antithetic` | \(\tfrac12\bigl(f(U)+f(1-U)\bigr)\) |
+| `control` | \(f(U)-c(e^{U}-(e-1))\) |
+| `importance` | Sample \(Y\sim g(y)=2y\), weight \(f(Y)/g(Y)\) |
+
+`make -C mpi vr` compares relative error vs \(N\) across methods.
 
 ### Bugs fixed in the original `integra.c`
 

@@ -19,6 +19,7 @@ OUT = ROOT / "outputs"
 FIG = ROOT / "figures"
 
 TIME_RE = re.compile(
+    r"(?:method=\w+\s+)?"
     r"N=(?P<n>\d+)\s+procs=(?P<procs>\d+)\s+estimate=(?P<est>[0-9.eE+-]+)\s+"
     r"exact=(?P<exact>[0-9.eE+-]+)\s+rel_error=(?P<err>[0-9.eE+-]+)%\s+"
     r"time=(?P<time>[0-9.eE+-]+)s"

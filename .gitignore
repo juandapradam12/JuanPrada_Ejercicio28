@@ -31,6 +31,8 @@ outputs/*
 !outputs/dengue_supervised_metrics.csv
 !outputs/dengue_feature_importance.csv
 !outputs/mpi_scaling.csv
+!outputs/monte_carlo_vr_comparison.csv
+!outputs/bakery_frequent_itemsets.csv
 *.txt
 !requirements.txt
 mpi/mpi_hello*

@@ -31,6 +31,8 @@ class BakeryResult:
     primary_split_k: int | None = None
     hourly_item_rates: pd.DataFrame | None = None
     cluster_hour_share: pd.DataFrame | None = None
+    frequent_itemsets: pd.DataFrame | None = None
+    rule_engine: str = "apriori"
 
 
 def load_baskets(
@@ -94,6 +96,65 @@ def cluster_hour_distribution(baskets: pd.DataFrame) -> pd.DataFrame:
     return counts.div(counts.sum(axis=1).replace(0, np.nan), axis=0).fillna(0.0)
 
 
+def _format_itemset(value) -> str:
+    if isinstance(value, (set, frozenset)):
+        return " & ".join(sorted(str(v) for v in value))
+    return str(value)
+
+
+def fp_growth_rules(
+    baskets: pd.DataFrame,
+    item_cols: list[str],
+    min_support: float = 0.02,
+    min_confidence: float = 0.35,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """FP-Growth frequent itemsets + association rules via mlxtend."""
+    from mlxtend.frequent_patterns import association_rules as mx_rules
+    from mlxtend.frequent_patterns import fpgrowth
+
+    binary = baskets[item_cols].astype(bool).copy()
+    binary.columns = [c.removeprefix("Item_") for c in binary.columns]
+    frequent = fpgrowth(binary, min_support=min_support, use_colnames=True)
+    if frequent.empty:
+        empty_rules = pd.DataFrame(
+            columns=["antecedents", "consequents", "support", "confidence", "lift"]
+        )
+        return empty_rules, frequent
+
+    frequent = frequent.sort_values("support", ascending=False).reset_index(drop=True)
+    rules = mx_rules(frequent, metric="confidence", min_threshold=min_confidence)
+    if rules.empty:
+        empty_rules = pd.DataFrame(
+            columns=["antecedents", "consequents", "support", "confidence", "lift"]
+        )
+        return empty_rules, frequent
+
+    out = pd.DataFrame(
+        {
+            "antecedents": rules["antecedents"].map(_format_itemset),
+            "consequents": rules["consequents"].map(_format_itemset),
+            "support": rules["support"].astype(float),
+            "confidence": rules["confidence"].astype(float),
+            "lift": rules["lift"].astype(float),
+        }
+    )
+    out = out.sort_values(["lift", "confidence", "support"], ascending=False).reset_index(drop=True)
+    return out, frequent
+
+
+def item_cooccurrence(
+    baskets: pd.DataFrame,
+    item_cols: list[str],
+    top_n: int = 12,
+) -> pd.DataFrame:
+    """Pairwise co-occurrence counts among the most frequent items."""
+    top = baskets[item_cols].sum().sort_values(ascending=False).head(top_n).index
+    X = baskets[list(top)].to_numpy(dtype=np.float64)
+    co = X.T @ X
+    labels = [c.removeprefix("Item_") for c in top]
+    return pd.DataFrame(co, index=labels, columns=labels)
+
+
 def association_rules(
     baskets: pd.DataFrame,
     item_cols: list[str],
@@ -101,7 +162,7 @@ def association_rules(
     min_confidence: float = 0.3,
     max_antecedent: int = 2,
 ) -> pd.DataFrame:
-    """Lightweight Apriori-style pair/triple mining (no extra dependency)."""
+    """Lightweight Apriori-style pair/triple mining (fallback without mlxtend)."""
     X = baskets[item_cols].to_numpy(dtype=np.uint8)
     n = X.shape[0]
     support_1 = X.mean(axis=0)
@@ -246,9 +307,23 @@ def analyze_bakery(
 
     pca = PCA(n_components=2, random_state=random_state)
     embedding = pca.fit_transform(X)
-    rules = association_rules(
-        baskets, item_cols, min_support=min_support, min_confidence=min_confidence
-    )
+
+    rule_engine = "fp_growth"
+    frequent_itemsets: pd.DataFrame | None
+    try:
+        rules, frequent_itemsets = fp_growth_rules(
+            baskets,
+            item_cols,
+            min_support=min_support,
+            min_confidence=min_confidence,
+        )
+    except ImportError:
+        rule_engine = "apriori"
+        frequent_itemsets = None
+        rules = association_rules(
+            baskets, item_cols, min_support=min_support, min_confidence=min_confidence
+        )
+
     top_items = baskets[item_cols].sum().sort_values(ascending=False)
     top_items.index = top_items.index.str.removeprefix("Item_")
     hourly_item_rates = temporal_item_rates(baskets, item_cols)
@@ -268,6 +343,8 @@ def analyze_bakery(
         primary_split_k=primary_split_k,
         hourly_item_rates=hourly_item_rates,
         cluster_hour_share=cluster_hour_share,
+        frequent_itemsets=frequent_itemsets,
+        rule_engine=rule_engine,
     )
 
 
@@ -340,7 +417,28 @@ def plot_bakery_diagnostics(result: BakeryResult, out_dir: str | Path) -> dict[s
     plt.close(fig)
 
     paths.update(plot_bakery_temporal(result, out))
+    paths.update(plot_bakery_cooccurrence(result, out))
     return paths
+
+
+def plot_bakery_cooccurrence(result: BakeryResult, out_dir: str | Path) -> dict[str, Path]:
+    """Heatmap of top-item co-occurrence counts."""
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    co = item_cooccurrence(result.baskets, result.item_cols, top_n=12)
+    fig, ax = plt.subplots(figsize=(8, 6.5))
+    im = ax.imshow(co.to_numpy(), cmap="YlOrRd")
+    ax.set_xticks(range(len(co.columns)))
+    ax.set_yticks(range(len(co.index)))
+    ax.set_xticklabels(co.columns, rotation=60, ha="right")
+    ax.set_yticklabels(co.index)
+    ax.set_title(f"Top-item co-occurrence ({result.rule_engine} rules companion)")
+    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, label="shared baskets")
+    fig.tight_layout()
+    path = out / "bakery_item_cooccurrence.png"
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+    return {"cooccurrence": path}
 
 
 def plot_bakery_temporal(result: BakeryResult, out_dir: str | Path) -> dict[str, Path]:

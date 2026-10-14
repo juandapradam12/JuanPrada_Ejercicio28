@@ -5,7 +5,7 @@ LDFLAGS = -lm
 MPIEXEC ?= mpirun
 NP      ?= 4
 
-.PHONY: all clean run-pi run-mc convergence scaling
+.PHONY: all clean run-pi run-mc convergence scaling vr
 
 all: Listing12.7 integra
 
@@ -19,14 +19,14 @@ run-pi: Listing12.7
 	$(MPIEXEC) -n $(NP) ./Listing12.7 1000000
 
 run-mc: integra
-	$(MPIEXEC) -n $(NP) ./integra 1000000
+	$(MPIEXEC) -n $(NP) ./integra 1000000 crude
 
 # Convergence study used by plots.py
 convergence: integra
 	@mkdir -p ../outputs
 	@for n in 100 1000 10000 100000 1000000 10000000; do \
 		echo "N=$$n"; \
-		$(MPIEXEC) -n $(NP) ./integra $$n > ../outputs/mc_$$n.txt; \
+		$(MPIEXEC) -n $(NP) ./integra $$n crude > ../outputs/mc_$$n.txt; \
 	done
 	python3 plots.py
 
@@ -35,5 +35,9 @@ convergence: integra
 scaling: integra
 	MPIEXEC="$(MPIEXEC)" python3 scaling.py --mpiexec "$(MPIEXEC)" --procs 1 2 4 --n-samples 5000000 --repeats 2
 
+# Variance-reduction comparison (crude / antithetic / control / importance)
+vr: integra
+	MPIEXEC="$(MPIEXEC)" NP=$(NP) python3 compare_vr.py
+
 clean:
-	rm -f Listing12.7 integra ../outputs/mc_*.txt ../outputs/mpi_scaling.csv
+	rm -f Listing12.7 integra ../outputs/mc_*.txt ../outputs/mpi_scaling.csv ../outputs/monte_carlo_vr_comparison.csv

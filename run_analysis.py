@@ -52,6 +52,12 @@ def main() -> None:
     bakery_paths = plot_bakery_diagnostics(bakery, args.figures_dir)
     bakery.metrics.to_csv(args.out_dir / "bakery_cluster_metrics.csv", index=False)
     bakery.rules.head(50).to_csv(args.out_dir / "bakery_association_rules.csv", index=False)
+    if bakery.frequent_itemsets is not None and not bakery.frequent_itemsets.empty:
+        freq_out = bakery.frequent_itemsets.copy()
+        freq_out["itemsets"] = freq_out["itemsets"].map(
+            lambda s: " & ".join(sorted(str(v) for v in s)) if isinstance(s, (set, frozenset)) else str(s)
+        )
+        freq_out.head(100).to_csv(args.out_dir / "bakery_frequent_itemsets.csv", index=False)
     bakery.baskets[["Transaction", "cluster", "hour", "dayofweek", "day_name"]].to_csv(
         args.out_dir / "bakery_transaction_clusters.csv", index=False
     )
@@ -79,7 +85,11 @@ def main() -> None:
             "best_k": int(bakery.best_k),
             "primary_split_k": bakery.primary_split_k,
             "svd_components": int(bakery.svd_components),
+            "rule_engine": bakery.rule_engine,
             "n_association_rules": int(len(bakery.rules)),
+            "n_frequent_itemsets": int(len(bakery.frequent_itemsets))
+            if bakery.frequent_itemsets is not None
+            else 0,
             "top_rule": bakery.rules.iloc[0].to_dict() if len(bakery.rules) else None,
             "peak_hour": peak_hour,
             "pca_variance_ratio": bakery.pca.explained_variance_ratio_.tolist(),

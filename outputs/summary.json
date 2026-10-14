@@ -63,7 +63,9 @@
     "best_k": 6,
     "primary_split_k": 15,
     "svd_components": 25,
+    "rule_engine": "fp_growth",
     "n_association_rules": 8,
+    "n_frequent_itemsets": 33,
     "top_rule": {
       "antecedents": "Toast",
       "consequents": "Coffee",
@@ -83,7 +85,8 @@
       "occasion": "figures/bakery_example_occasion.png",
       "temporal_traffic": "figures/bakery_temporal_traffic.png",
       "hourly_items": "figures/bakery_hourly_item_rates.png",
-      "cluster_hours": "figures/bakery_cluster_by_hour.png"
+      "cluster_hours": "figures/bakery_cluster_by_hour.png",
+      "cooccurrence": "figures/bakery_item_cooccurrence.png"
     }
   }
 }

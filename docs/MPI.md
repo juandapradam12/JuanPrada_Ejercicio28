@@ -21,12 +21,23 @@ Interactive mode (original textbook style): run without arguments and enter inte
 ## Monte Carlo integrator — `integra`
 
 ```bash
-mpirun -n 4 ./mpi/integra 1000000
+mpirun -n 4 ./mpi/integra 1000000 crude
+mpirun -n 4 ./mpi/integra 1000000 antithetic
+mpirun -n 4 ./mpi/integra 1000000 control
+mpirun -n 4 ./mpi/integra 1000000 importance
 make -C mpi convergence   # N-sweep + figures/monte_carlo_relative_error.png
 make -C mpi scaling       # strong scaling → figures/mpi_strong_scaling.png
+make -C mpi vr            # variance-reduction bake-off → figures/monte_carlo_variance_reduction.png
 ```
 
 Stdout of `integra` is the estimate only (easy to capture in files). Diagnostics go to stderr.
+
+| Method | Idea |
+| --- | --- |
+| `crude` | Uniform Monte Carlo |
+| `antithetic` | Average \(f(U)\) and \(f(1-U)\) |
+| `control` | Control variate with \(e^{x}\) (known mean \(e-1\)) |
+| `importance` | Sample from \(g(x)=2x\) on \([0,1]\), weight by \(f/g\) |
 
 ### Strong scaling
 

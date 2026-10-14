@@ -13,6 +13,8 @@ from analysis.bakery import (
     _select_occasion_k,
     analyze_bakery,
     association_rules,
+    fp_growth_rules,
+    item_cooccurrence,
     load_baskets,
     temporal_item_rates,
 )
@@ -75,9 +77,18 @@ def test_association_rules_metrics(bakery_baskets) -> None:
     assert (rules["support"] > 0).all()
     assert (rules["confidence"].between(0, 1)).all()
     assert (rules["lift"] > 0).all()
-    # Top rule should involve Coffee in this dataset
-    top = rules.iloc[0]
-    assert "Coffee" in {top["antecedents"], top["consequents"]} or True
+
+
+def test_fp_growth_rules(bakery_baskets) -> None:
+    baskets, item_cols = bakery_baskets
+    rules, frequent = fp_growth_rules(baskets, item_cols, min_support=0.02, min_confidence=0.3)
+    assert not frequent.empty
+    assert not rules.empty
+    assert (rules["lift"] >= 1.0).any()
+    assert {"antecedents", "consequents", "support", "confidence", "lift"} <= set(rules.columns)
+    co = item_cooccurrence(baskets, item_cols, top_n=8)
+    assert co.shape == (8, 8)
+    assert (np.diag(co.to_numpy()) >= 0).all()
 
 
 def test_inertia_knee_and_occasion_k() -> None:
@@ -119,12 +130,15 @@ def test_analyze_bakery_smoke(tmp_path: Path) -> None:
     assert result.hourly_item_rates is not None
     assert result.cluster_hour_share is not None
     assert len(result.rules) >= 1
+    assert result.rule_engine == "fp_growth"
+    assert result.frequent_itemsets is not None
 
-    from analysis.bakery import plot_bakery_temporal
+    from analysis.bakery import plot_bakery_cooccurrence, plot_bakery_temporal
 
     paths = plot_bakery_temporal(result, tmp_path)
     assert paths["temporal_traffic"].exists()
     assert paths["hourly_items"].exists()
+    assert plot_bakery_cooccurrence(result, tmp_path)["cooccurrence"].exists()
 
 
 def test_monte_carlo_analytical_constant() -> None:
