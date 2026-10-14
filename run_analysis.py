@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+"""Run dengue + bakery unsupervised analyses and write figures/tables."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+from analysis.bakery import analyze_bakery, plot_bakery_diagnostics
+from analysis.dengue import analyze_dengue, external_validation, plot_dengue_diagnostics
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--data-dir", type=Path, default=Path("data"))
+    parser.add_argument("--out-dir", type=Path, default=Path("outputs"))
+    parser.add_argument("--figures-dir", type=Path, default=Path("figures"))
+    args = parser.parse_args()
+
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    args.figures_dir.mkdir(parents=True, exist_ok=True)
+
+    dengue = analyze_dengue(args.data_dir / "dengue.csv")
+    dengue_paths = plot_dengue_diagnostics(dengue, args.figures_dir)
+    dengue_ext = external_validation(dengue)
+    dengue.metrics.to_csv(args.out_dir / "dengue_cluster_metrics.csv", index=False)
+    dengue.data.to_csv(args.out_dir / "dengue_with_clusters.csv", index=False)
+
+    bakery = analyze_bakery(args.data_dir / "BreadBasket_DMS.csv")
+    bakery_paths = plot_bakery_diagnostics(bakery, args.figures_dir)
+    bakery.metrics.to_csv(args.out_dir / "bakery_cluster_metrics.csv", index=False)
+    bakery.rules.head(50).to_csv(args.out_dir / "bakery_association_rules.csv", index=False)
+    bakery.baskets[["Transaction", "cluster"]].to_csv(
+        args.out_dir / "bakery_transaction_clusters.csv", index=False
+    )
+
+    summary = {
+        "dengue": {
+            "n_regions": int(len(dengue.data)),
+            "best_k": int(dengue.best_k),
+            "pca_variance_ratio": dengue.pca.explained_variance_ratio_.tolist(),
+            "external_validation": dengue_ext,
+            "figures": {k: str(v) for k, v in dengue_paths.items()},
+        },
+        "bakery": {
+            "n_transactions": int(len(bakery.baskets)),
+            "n_items": int(len(bakery.item_cols)),
+            "best_k": int(bakery.best_k),
+            "primary_split_k": bakery.primary_split_k,
+            "svd_components": int(bakery.svd_components),
+            "n_association_rules": int(len(bakery.rules)),
+            "top_rule": bakery.rules.iloc[0].to_dict() if len(bakery.rules) else None,
+            "pca_variance_ratio": bakery.pca.explained_variance_ratio_.tolist(),
+            "figures": {k: str(v) for k, v in bakery_paths.items()},
+        },
+    }
+    (args.out_dir / "summary.json").write_text(json.dumps(summary, indent=2))
+    print(json.dumps(summary, indent=2))
+
+
+if __name__ == "__main__":
+    main()

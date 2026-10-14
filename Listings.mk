@@ -1,8 +1,8 @@
-# compilo con make -f Listings.mk
+# Backward-compatible entry point.
+# Usage: make -f Listings.mk
+# Prefer: make -C mpi
 
-Listing12.7: Listing12.7.c
-	mpicc Listing12.7.c -o Listing12.7
-	mpirun -np 2 ./Listing12.7
+.PHONY: all clean Listing12.7 integra run-pi run-mc convergence
 
-clean: 
-	rm Listing12.7
+all clean Listing12.7 integra run-pi run-mc convergence:
+	$(MAKE) -C mpi $@
