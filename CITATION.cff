@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: If you use this repository, please cite it as below.
+title: "Unsupervised Learning Lab"
+authors:
+  - family-names: Prada Malagón
+    given-names: Juan David
+    email: pradamalagonjd@gmail.com
+repository-code: "https://github.com/juandapradam12/unsupervised-learning-lab"
+license: MIT
+type: software
+abstract: >-
+  Reproducible unsupervised learning lab covering clustering with external
+  validation and supervised companions, market-basket FP-Growth association
+  rules with time-of-day analysis, and MPI Monte Carlo numerical integration
+  with variance reduction.
+keywords:
+  - unsupervised-learning
+  - clustering
+  - association-rules
+  - data-mining
+  - fp-growth
+  - dengue
+  - market-basket
+  - mpi
+  - monte-carlo
+references:
+  - type: article
+    authors:
+      - family-names: Hales
+        given-names: Simon
+      - family-names: de Wet
+        given-names: Neil
+      - family-names: Maindonald
+        given-names: John
+      - family-names: Woodward
+        given-names: Alistair
+    title: "Potential effect of population and climate change on global distribution of dengue fever: an empirical model"
+    year: 2002
+    journal: The Lancet
+    volume: "360"
+    pages: "830-834"

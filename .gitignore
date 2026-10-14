@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Build / MPI binaries
+*.o
+*.x
+mpi/integra
+mpi/Listing12.7
+integra
+integra.x
+Listing12.7
+
+# Generated analysis outputs (keep lightweight summaries)
+outputs/*
+!outputs/summary.json
+!outputs/dengue_cluster_metrics.csv
+!outputs/bakery_cluster_metrics.csv
+!outputs/bakery_association_rules.csv
+!outputs/bakery_hourly_item_rates.csv
+!outputs/bakery_cluster_hour_share.csv
+!outputs/dengue_supervised_metrics.csv
+!outputs/dengue_feature_importance.csv
+!outputs/mpi_scaling.csv
+!outputs/monte_carlo_vr_comparison.csv
+!outputs/bakery_frequent_itemsets.csv
+*.txt
+!requirements.txt
+mpi/mpi_hello*
+mpi/integra_test
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
