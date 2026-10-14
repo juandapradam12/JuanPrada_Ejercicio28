@@ -37,7 +37,7 @@ Stdout of `integra` is the estimate only (easy to capture in files). Diagnostics
 | `crude` | Uniform Monte Carlo |
 | `antithetic` | Average $f(U)$ and $f(1-U)$ |
 | `control` | Control variate with $e^{x}$ (known mean $e-1$) |
-| `importance` | Sample from $g(x)=2x$ on $[0,1]$, weight by $f/g$ |
+| `importance` | Sample from $g(x)=2x$ on $[0,1]$, weight by $f(Y)/g(Y)$ |
 
 ### Strong scaling
 

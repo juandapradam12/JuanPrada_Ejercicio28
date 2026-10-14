@@ -29,7 +29,7 @@ Originally coursework for *Métodos Computacionales Avanzados*; reworked as a po
 - **External validation** (Adjusted Rand Index / NMI) against `NoYes` dengue prevalence
 - **Supervised companion** — logistic regression + random forest on climate features → `NoYes` (labels never used in clustering)
 - **Bakery basket mining** with SVD occasions, **FP-Growth** association rules, co-occurrence heatmaps, and **time-of-day / weekday** traffic
-- **MPI programs**: rectangle-rule $\pi$, Monte Carlo for $\int_0^1 e^{x}\sin(x)\,dx$ with **variance reduction** (antithetic / control / importance) and **strong-scaling**
+- **MPI programs**: rectangle-rule $\pi$, Monte Carlo for $\int_{0}^{1} e^{x}\sin(x)\,dx$ with **variance reduction** (antithetic / control / importance) and **strong-scaling**
 - **Tests + CI**: `pytest` and GitHub Actions for the Python pipeline and MPI smoke/scaling builds
 - **Packaging**: `Dockerfile`, `environment.yml`, MIT `LICENSE`, `CITATION.cff`
 - **One-command reproduction**: `python run_analysis.py` and `make -C mpi convergence`
@@ -120,8 +120,7 @@ HPC / Torque helpers: `torque.sh` (π), `torque2.sh` (Monte Carlo study).
 Estimates
 
 $$
-I = \int_0^1 e^{x}\sin(x)\,dx
-= \tfrac12\bigl(e(\sin 1 - \cos 1) + 1\bigr)
+I = \int_0^1 e^{x}\sin(x)\,dx = \frac{1}{2}\big(e(\sin 1 - \cos 1) + 1\big)
 $$
 
 with stratified work across ranks (`MPI_Reduce`). Relative error tracks the classic $N^{-1/2}$ rate.
@@ -136,9 +135,9 @@ Full write-up: [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md).
 | --- | --- |
 | Dengue structure vs label | ARI ≈ **0.42**, NMI ≈ **0.43** (clusters unused `NoYes` at fit time) |
 | Supervised companion | Climate → `NoYes` ROC-AUC ≈ **0.95 (LR)** / **0.99 (RF)** (5-fold CV); top feature `h10pix` |
-| Bakery occasions | Interpretable $K^\star$ ≈ **6** purchase occasions; peak hour ≈ **11** |
+| Bakery occasions | Interpretable $K^{\star} \approx 6$ purchase occasions; peak hour $\approx 11$ |
 | Top association rule | FP-Growth: **Toast → Coffee** (confidence ≈ 0.70, lift ≈ 1.47) |
-| Monte Carlo VR | Antithetic ≈ **0.005%** error at $N=10^6$ vs crude ≈ **0.065%** |
+| Monte Carlo VR | Antithetic $\approx 0.005\%$ error at $N=10^{6}$ vs crude $\approx 0.065\%$ |
 
 After `python run_analysis.py` and `make -C mpi convergence` you should see:
 

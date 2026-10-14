@@ -38,7 +38,7 @@ Using silhouette avoids the original notebook’s inconsistency (narrative $K=14
 
 - 2D **PCA** embedding of the scaled matrix  
 - Per-cluster means of climate features and of `NoYes` (risk profile)  
-- **Geographic map** of region midpoints $((X_{\min}+X_{\max})/2,\ (Y_{\min}+Y_{\max})/2)$ colored by cluster and by `NoYes` side-by-side
+- **Geographic map** of region midpoints $\left(\frac{X_{\min}+X_{\max}}{2},\ \frac{Y_{\min}+Y_{\max}}{2}\right)$ colored by cluster and by `NoYes` side-by-side
 
 ### External validation (not used for fitting)
 
@@ -117,7 +117,7 @@ Each basket keeps its first observed timestamp. From that we report:
 Estimates
 
 $$
-\pi \approx \int_0^1 \frac{4}{1+x^2}\,dx
+\pi \approx \int_{0}^{1} \frac{4}{1+x^{2}}\,dx
 $$
 
 Intervals are striped across ranks; partial sums reduce with `MPI_SUM`. Non-interactive CLI mode: `./Listing12.7 <n_intervals>`.
@@ -127,8 +127,7 @@ Intervals are striped across ranks; partial sums reduce with `MPI_SUM`. Non-inte
 Estimates
 
 $$
-I = \int_0^1 e^{x}\sin(x)\,dx
-= \frac12\bigl(e(\sin 1 - \cos 1) + 1\bigr)
+I = \int_{0}^{1} e^{x}\sin(x)\,dx = \frac{1}{2}\big(e(\sin 1 - \cos 1) + 1\big)
 $$
 
 with uniform samples on $[0,1]$. Each rank draws a share of $N$ samples (`rand_r` with distinct seeds); sums reduce to rank 0.
@@ -138,8 +137,8 @@ Optional variance-reduction methods (CLI arg):
 | Method | Estimator idea |
 | --- | --- |
 | `crude` | $f(U),\ U\sim U(0,1)$ |
-| `antithetic` | $\tfrac12\bigl(f(U)+f(1-U)\bigr)$ |
-| `control` | $f(U)-c(e^{U}-(e-1))$ |
+| `antithetic` | $\frac{1}{2}\big(f(U)+f(1-U)\big)$ |
+| `control` | $f(U)-c\big(e^{U}-(e-1)\big)$ |
 | `importance` | Sample $Y\sim g(y)=2y$, weight $f(Y)/g(Y)$ |
 
 `make -C mpi vr` compares relative error vs $N$ across methods.
