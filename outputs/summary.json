@@ -14,7 +14,8 @@
     "figures": {
       "diagnostics": "figures/dengue_cluster_diagnostics.png",
       "pca": "figures/dengue_pca_clusters.png",
-      "risk": "figures/dengue_cluster_risk.png"
+      "risk": "figures/dengue_cluster_risk.png",
+      "geo": "figures/dengue_geo_clusters.png"
     }
   },
   "bakery": {
@@ -31,6 +32,7 @@
       "confidence": 0.7044025157232704,
       "lift": 1.4722759295064114
     },
+    "peak_hour": 11,
     "pca_variance_ratio": [
       0.27623422757405963,
       0.14599478162758453
@@ -39,7 +41,10 @@
       "diagnostics": "figures/bakery_cluster_diagnostics.png",
       "pca": "figures/bakery_pca_clusters.png",
       "top_items": "figures/bakery_top_items.png",
-      "occasion": "figures/bakery_example_occasion.png"
+      "occasion": "figures/bakery_example_occasion.png",
+      "temporal_traffic": "figures/bakery_temporal_traffic.png",
+      "hourly_items": "figures/bakery_hourly_item_rates.png",
+      "cluster_hours": "figures/bakery_cluster_by_hour.png"
     }
   }
 }

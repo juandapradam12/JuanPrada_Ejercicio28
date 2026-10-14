@@ -37,7 +37,8 @@ Using silhouette avoids the original notebook’s inconsistency (narrative \(K=1
 ### Visualization & profiling
 
 - 2D **PCA** embedding of the scaled matrix  
-- Per-cluster means of climate features and of `NoYes` (risk profile)
+- Per-cluster means of climate features and of `NoYes` (risk profile)  
+- **Geographic map** of region midpoints \(((X_{\min}+X_{\max})/2,\ (Y_{\min}+Y_{\max})/2)\) colored by cluster and by `NoYes` side-by-side
 
 ### External validation (not used for fitting)
 
@@ -87,6 +88,14 @@ Lightweight Apriori-style mining (pairs, optional triples):
 - Rank by **lift**, then confidence, then support  
 
 Rules answer questions such as “given pastry, how much more likely is coffee?”
+
+### Time-aware bakery views
+
+Each basket keeps its first observed timestamp. From that we report:
+
+- Transaction volume by **hour** and **weekday**  
+- Top-item attachment rates by hour (seasonality heatmap)  
+- Cluster / occasion **mix by hour** (when each purchase occasion dominates)
 
 ---
 

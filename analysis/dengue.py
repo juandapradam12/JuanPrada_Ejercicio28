@@ -182,4 +182,67 @@ def plot_dengue_diagnostics(result: DengueResult, out_dir: str | Path) -> dict[s
     fig.savefig(paths["risk"], dpi=150)
     plt.close(fig)
 
+    paths.update(plot_dengue_geo(result, out))
+    return paths
+
+
+def plot_dengue_geo(result: DengueResult, out_dir: str | Path) -> dict[str, Path]:
+    """Map clusters and historical prevalence in longitude/latitude space."""
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    paths: dict[str, Path] = {}
+    df = result.data
+
+    # Prefer region midpoints when both bounds exist; fall back to minima.
+    lon = (
+        (df["Xmin"] + df["Xmax"]) / 2.0
+        if {"Xmin", "Xmax"}.issubset(df.columns)
+        else df["Xmin"]
+    )
+    lat = (
+        (df["Ymin"] + df["Ymax"]) / 2.0
+        if {"Ymin", "Ymax"}.issubset(df.columns)
+        else df["Ymin"]
+    )
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    sc0 = axes[0].scatter(
+        lon,
+        lat,
+        c=df["cluster"],
+        cmap="tab10",
+        s=14,
+        alpha=0.85,
+        linewidths=0,
+    )
+    axes[0].set_title("Unsupervised climate/land-cover clusters")
+    axes[0].set_xlabel("Longitude")
+    axes[0].set_ylabel("Latitude")
+    fig.colorbar(sc0, ax=axes[0], label="cluster", fraction=0.046, pad=0.04)
+
+    sc1 = axes[1].scatter(
+        lon,
+        lat,
+        c=df["NoYes"],
+        cmap="coolwarm",
+        s=14,
+        alpha=0.85,
+        linewidths=0,
+        vmin=0,
+        vmax=1,
+    )
+    axes[1].set_title("Historical dengue presence (NoYes)")
+    axes[1].set_xlabel("Longitude")
+    axes[1].set_ylabel("Latitude")
+    fig.colorbar(sc1, ax=axes[1], label="NoYes", fraction=0.046, pad=0.04)
+
+    for ax in axes:
+        ax.set_aspect("equal", adjustable="box")
+        ax.grid(True, ls=":", alpha=0.4)
+
+    fig.suptitle("Dengue regions in geographic space", y=1.02)
+    fig.tight_layout()
+    paths["geo"] = out / "dengue_geo_clusters.png"
+    fig.savefig(paths["geo"], dpi=150, bbox_inches="tight")
+    plt.close(fig)
     return paths

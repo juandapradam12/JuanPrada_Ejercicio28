@@ -31,9 +31,17 @@ def main() -> None:
     bakery_paths = plot_bakery_diagnostics(bakery, args.figures_dir)
     bakery.metrics.to_csv(args.out_dir / "bakery_cluster_metrics.csv", index=False)
     bakery.rules.head(50).to_csv(args.out_dir / "bakery_association_rules.csv", index=False)
-    bakery.baskets[["Transaction", "cluster"]].to_csv(
+    bakery.baskets[["Transaction", "cluster", "hour", "dayofweek", "day_name"]].to_csv(
         args.out_dir / "bakery_transaction_clusters.csv", index=False
     )
+    if bakery.hourly_item_rates is not None:
+        bakery.hourly_item_rates.to_csv(args.out_dir / "bakery_hourly_item_rates.csv")
+    if bakery.cluster_hour_share is not None:
+        bakery.cluster_hour_share.to_csv(args.out_dir / "bakery_cluster_hour_share.csv")
+
+    peak_hour = None
+    if "hour" in bakery.baskets.columns and bakery.baskets["hour"].notna().any():
+        peak_hour = int(bakery.baskets["hour"].value_counts().idxmax())
 
     summary = {
         "dengue": {
@@ -51,6 +59,7 @@ def main() -> None:
             "svd_components": int(bakery.svd_components),
             "n_association_rules": int(len(bakery.rules)),
             "top_rule": bakery.rules.iloc[0].to_dict() if len(bakery.rules) else None,
+            "peak_hour": peak_hour,
             "pca_variance_ratio": bakery.pca.explained_variance_ratio_.tolist(),
             "figures": {k: str(v) for k, v in bakery_paths.items()},
         },

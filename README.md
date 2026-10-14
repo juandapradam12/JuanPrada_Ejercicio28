@@ -19,9 +19,11 @@ This repository turns exploratory coursework into a **reproducible analytics pac
 ## Highlights
 
 - **Dengue clustering** with K-Means++, Gaussian Mixtures, and Agglomerative clustering; K chosen by silhouette (elbow + Calinski–Harabasz reported)
+- **Geospatial dengue map** of clusters vs historical prevalence in lon/lat space
 - **External validation** (Adjusted Rand Index / NMI) against `NoYes` dengue prevalence
-- **Bakery basket mining** with corrected item features, PCA, silhouette-selected K, and Apriori-style association rules
+- **Bakery basket mining** with SVD occasions, association rules, and **time-of-day / weekday** traffic + item seasonality
 - **MPI programs**: rectangle-rule \(\pi\) and parallel Monte Carlo for \(\int_0^1 e^{x}\sin(x)\,dx\)
+- **Tests + CI**: `pytest` and GitHub Actions for the Python pipeline and MPI smoke builds
 - **One-command reproduction**: `python run_analysis.py` and `make -C mpi convergence`
 - Datasets vendored under `data/` — **no Google Drive / Colab mount required**
 
@@ -36,6 +38,9 @@ pip install -r requirements.txt
 
 # Unsupervised learning pipeline (figures + CSV/JSON under outputs/)
 python run_analysis.py
+
+# Tests
+pytest -q
 
 # Interactive walkthrough
 jupyter notebook Dengue_and_Bakery_Analysis.ipynb
@@ -112,14 +117,23 @@ Full write-up: [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md).
 
 ## Sample results
 
+| Signal | Typical result from `run_analysis.py` |
+| --- | --- |
+| Dengue structure vs label | ARI ≈ **0.42**, NMI ≈ **0.43** (clusters unused `NoYes` at fit time) |
+| Bakery occasions | Interpretable \(K^\star\) ≈ **6** purchase occasions |
+| Top association rule | **Toast → Coffee** (confidence ≈ 0.70, lift ≈ 1.47) |
+| Monte Carlo | Relative error ≈ **0.03%** at \(N=10^7\) (4 ranks) |
+
 After `python run_analysis.py` and `make -C mpi convergence` you should see:
 
 - `figures/dengue_cluster_diagnostics.png` — elbow + multi-model silhouette  
 - `figures/dengue_pca_clusters.png` — regions in PC space  
 - `figures/dengue_cluster_risk.png` — dengue rate by cluster  
+- `figures/dengue_geo_clusters.png` — lon/lat clusters vs historical prevalence  
 - `figures/bakery_*.png` — basket structure, top items, example occasion  
+- `figures/bakery_temporal_traffic.png` / `bakery_hourly_item_rates.png` / `bakery_cluster_by_hour.png` — time-aware views  
 - `figures/monte_carlo_relative_error.png` — MC convergence  
-- `outputs/summary.json` — selected \(K\), validation scores, top rule  
+- `outputs/summary.json` — selected \(K\), validation scores, top rule, peak hour  
 
 ---
 

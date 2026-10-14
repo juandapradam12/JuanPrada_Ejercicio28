@@ -29,6 +29,8 @@ class BakeryResult:
     top_items: pd.Series
     svd_components: int
     primary_split_k: int | None = None
+    hourly_item_rates: pd.DataFrame | None = None
+    cluster_hour_share: pd.DataFrame | None = None
 
 
 def load_baskets(
@@ -50,7 +52,46 @@ def load_baskets(
     baskets.columns = [f"Item_{c}" for c in baskets.columns]
     item_cols = list(baskets.columns)
     baskets = baskets.reset_index()
+
+    # Attach temporal metadata (first timestamp seen per transaction)
+    meta = (
+        raw.groupby("Transaction", as_index=False)
+        .agg(Date=("Date", "first"), Time=("Time", "first"))
+    )
+    baskets = baskets.merge(meta, on="Transaction", how="left")
+    baskets["datetime"] = pd.to_datetime(
+        baskets["Date"].astype(str) + " " + baskets["Time"].astype(str),
+        errors="coerce",
+    )
+    baskets["hour"] = baskets["datetime"].dt.hour
+    baskets["dayofweek"] = baskets["datetime"].dt.dayofweek
+    baskets["day_name"] = baskets["datetime"].dt.day_name()
+    baskets["month"] = baskets["datetime"].dt.month
     return baskets, item_cols
+
+
+def temporal_item_rates(
+    baskets: pd.DataFrame,
+    item_cols: list[str],
+    top_n: int = 8,
+) -> pd.DataFrame:
+    """Share of baskets containing each top item, by hour of day."""
+    totals = baskets[item_cols].sum().sort_values(ascending=False)
+    top_cols = list(totals.head(top_n).index)
+    hourly = (
+        baskets.dropna(subset=["hour"])
+        .groupby("hour")[top_cols]
+        .mean()
+    )
+    hourly.columns = [c.removeprefix("Item_") for c in hourly.columns]
+    return hourly
+
+
+def cluster_hour_distribution(baskets: pd.DataFrame) -> pd.DataFrame:
+    """Row-normalized cluster mix by hour (purchase-occasion timing)."""
+    tmp = baskets.dropna(subset=["hour", "cluster"]).copy()
+    counts = pd.crosstab(tmp["hour"], tmp["cluster"])
+    return counts.div(counts.sum(axis=1).replace(0, np.nan), axis=0).fillna(0.0)
 
 
 def association_rules(
@@ -210,6 +251,8 @@ def analyze_bakery(
     )
     top_items = baskets[item_cols].sum().sort_values(ascending=False)
     top_items.index = top_items.index.str.removeprefix("Item_")
+    hourly_item_rates = temporal_item_rates(baskets, item_cols)
+    cluster_hour_share = cluster_hour_distribution(baskets)
 
     return BakeryResult(
         baskets=baskets,
@@ -223,6 +266,8 @@ def analyze_bakery(
         top_items=top_items,
         svd_components=n_comp,
         primary_split_k=primary_split_k,
+        hourly_item_rates=hourly_item_rates,
+        cluster_hour_share=cluster_hour_share,
     )
 
 
@@ -293,5 +338,73 @@ def plot_bakery_diagnostics(result: BakeryResult, out_dir: str | Path) -> dict[s
     paths["occasion"] = out / "bakery_example_occasion.png"
     fig.savefig(paths["occasion"], dpi=150)
     plt.close(fig)
+
+    paths.update(plot_bakery_temporal(result, out))
+    return paths
+
+
+def plot_bakery_temporal(result: BakeryResult, out_dir: str | Path) -> dict[str, Path]:
+    """Hour-of-day volume, item seasonality, and cluster timing plots."""
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    paths: dict[str, Path] = {}
+    baskets = result.baskets.dropna(subset=["hour"])
+
+    # Transactions by hour and by weekday
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    hour_counts = baskets["hour"].value_counts().sort_index()
+    axes[0].bar(hour_counts.index.astype(int), hour_counts.values, color="#bc4749")
+    axes[0].set_xlabel("Hour of day")
+    axes[0].set_ylabel("Transactions")
+    axes[0].set_title("Traffic by hour")
+
+    order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    day_counts = baskets["day_name"].value_counts().reindex(order).fillna(0)
+    axes[1].bar(range(len(order)), day_counts.values, color="#2a6f97")
+    axes[1].set_xticks(range(len(order)))
+    axes[1].set_xticklabels([d[:3] for d in order])
+    axes[1].set_ylabel("Transactions")
+    axes[1].set_title("Traffic by weekday")
+    fig.tight_layout()
+    paths["temporal_traffic"] = out / "bakery_temporal_traffic.png"
+    fig.savefig(paths["temporal_traffic"], dpi=150)
+    plt.close(fig)
+
+    # Top-item attachment rate by hour (seasonality heatmap)
+    if result.hourly_item_rates is not None and not result.hourly_item_rates.empty:
+        rates = result.hourly_item_rates
+        fig, ax = plt.subplots(figsize=(10, 4.5))
+        im = ax.imshow(rates.T.to_numpy(), aspect="auto", cmap="YlOrRd")
+        ax.set_yticks(range(len(rates.columns)))
+        ax.set_yticklabels(list(rates.columns))
+        ax.set_xticks(range(len(rates.index)))
+        ax.set_xticklabels([int(h) for h in rates.index])
+        ax.set_xlabel("Hour of day")
+        ax.set_title("Top-item basket rate by hour")
+        fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, label="P(item in basket)")
+        fig.tight_layout()
+        paths["hourly_items"] = out / "bakery_hourly_item_rates.png"
+        fig.savefig(paths["hourly_items"], dpi=150)
+        plt.close(fig)
+
+    # Occasion mix by hour
+    if result.cluster_hour_share is not None and not result.cluster_hour_share.empty:
+        share = result.cluster_hour_share
+        fig, ax = plt.subplots(figsize=(10, 4.5))
+        bottom = np.zeros(len(share))
+        hours = share.index.to_numpy()
+        for col in share.columns:
+            vals = share[col].to_numpy()
+            ax.bar(hours, vals, bottom=bottom, label=f"cluster {col}", width=0.9)
+            bottom = bottom + vals
+        ax.set_xlabel("Hour of day")
+        ax.set_ylabel("Share of baskets")
+        ax.set_ylim(0, 1)
+        ax.set_title("Purchase-occasion mix by hour")
+        ax.legend(ncols=min(len(share.columns), 4), fontsize=8, loc="upper right")
+        fig.tight_layout()
+        paths["cluster_hours"] = out / "bakery_cluster_by_hour.png"
+        fig.savefig(paths["cluster_hours"], dpi=150)
+        plt.close(fig)
 
     return paths

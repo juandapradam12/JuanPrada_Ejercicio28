@@ -8,6 +8,8 @@ venv/
 .ipynb_checkpoints/
 .pytest_cache/
 .mypy_cache/
+.coverage
+htmlcov/
 
 # Build / MPI binaries
 *.o
@@ -24,6 +26,8 @@ outputs/*
 !outputs/dengue_cluster_metrics.csv
 !outputs/bakery_cluster_metrics.csv
 !outputs/bakery_association_rules.csv
+!outputs/bakery_hourly_item_rates.csv
+!outputs/bakery_cluster_hour_share.csv
 *.txt
 !requirements.txt
 mpi/mpi_hello*
