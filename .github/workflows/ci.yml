@@ -69,6 +69,7 @@ jobs:
           make -C mpi all
           mpirun --allow-run-as-root -n 2 ./mpi/Listing12.7 200000
           mpirun --allow-run-as-root -n 2 ./mpi/integra 100000
-          make -C mpi scaling MPIEXEC='mpirun --allow-run-as-root'
+          # scaling.py sets OMPI root env; keep MPIEXEC as a single token
+          make -C mpi scaling MPIEXEC=mpirun
           test -f figures/mpi_strong_scaling.png
           test -f outputs/mpi_scaling.csv
