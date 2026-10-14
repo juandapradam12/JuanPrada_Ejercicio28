@@ -35,13 +35,13 @@ Stdout of `integra` is the estimate only (easy to capture in files). Diagnostics
 | Method | Idea |
 | --- | --- |
 | `crude` | Uniform Monte Carlo |
-| `antithetic` | Average \(f(U)\) and \(f(1-U)\) |
-| `control` | Control variate with \(e^{x}\) (known mean \(e-1\)) |
-| `importance` | Sample from \(g(x)=2x\) on \([0,1]\), weight by \(f/g\) |
+| `antithetic` | Average $f(U)$ and $f(1-U)$ |
+| `control` | Control variate with $e^{x}$ (known mean $e-1$) |
+| `importance` | Sample from $g(x)=2x$ on $[0,1]$, weight by $f/g$ |
 
 ### Strong scaling
 
-`mpi/scaling.py` runs a fixed \(N\) across ranks `{1,2,4}`, averages wall time, and plots speedup vs ideal. Override with:
+`mpi/scaling.py` runs a fixed $N$ across ranks `{1,2,4}`, averages wall time, and plots speedup vs ideal. Override with:
 
 ```bash
 python3 mpi/scaling.py --procs 1 2 4 8 --n-samples 8000000 --repeats 3
