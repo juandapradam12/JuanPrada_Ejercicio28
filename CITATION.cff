@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: If you use this repository, please cite it as below.
+title: "Dengue Risk Clustering & Bakery Basket Intelligence"
+authors:
+  - family-names: Prada Malagón
+    given-names: Juan David
+    email: pradamalagonjd@gmail.com
+repository-code: "https://github.com/juandapradam12/JuanPrada_Ejercicio28"
+license: MIT
+type: software
+abstract: >-
+  Reproducible unsupervised learning project combining dengue prevalence
+  clustering with external validation and supervised companions, bakery
+  basket occasion mining with association rules and time-of-day analysis,
+  and MPI Monte Carlo numerical integration.
+keywords:
+  - unsupervised-learning
+  - clustering
+  - association-rules
+  - dengue
+  - market-basket
+  - mpi
+  - monte-carlo
+references:
+  - type: article
+    authors:
+      - family-names: Hales
+        given-names: Simon
+      - family-names: de Wet
+        given-names: Neil
+      - family-names: Maindonald
+        given-names: John
+      - family-names: Woodward
+        given-names: Alistair
+    title: "Potential effect of population and climate change on global distribution of dengue fever: an empirical model"
+    year: 2002
+    journal: The Lancet
+    volume: "360"
+    pages: "830-834"

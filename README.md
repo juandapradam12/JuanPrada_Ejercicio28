@@ -21,9 +21,11 @@ This repository turns exploratory coursework into a **reproducible analytics pac
 - **Dengue clustering** with K-Means++, Gaussian Mixtures, and Agglomerative clustering; K chosen by silhouette (elbow + Calinski–Harabasz reported)
 - **Geospatial dengue map** of clusters vs historical prevalence in lon/lat space
 - **External validation** (Adjusted Rand Index / NMI) against `NoYes` dengue prevalence
+- **Supervised companion** — logistic regression + random forest on climate features → `NoYes` (labels never used in clustering)
 - **Bakery basket mining** with SVD occasions, association rules, and **time-of-day / weekday** traffic + item seasonality
-- **MPI programs**: rectangle-rule \(\pi\) and parallel Monte Carlo for \(\int_0^1 e^{x}\sin(x)\,dx\)
-- **Tests + CI**: `pytest` and GitHub Actions for the Python pipeline and MPI smoke builds
+- **MPI programs**: rectangle-rule \(\pi\), Monte Carlo for \(\int_0^1 e^{x}\sin(x)\,dx\), plus **strong-scaling** study
+- **Tests + CI**: `pytest` and GitHub Actions for the Python pipeline and MPI smoke/scaling builds
+- **Packaging**: `Dockerfile`, `environment.yml`, MIT `LICENSE`, `CITATION.cff`
 - **One-command reproduction**: `python run_analysis.py` and `make -C mpi convergence`
 - Datasets vendored under `data/` — **no Google Drive / Colab mount required**
 
@@ -35,12 +37,17 @@ This repository turns exploratory coursework into a **reproducible analytics pac
 # Python environment
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+# or: conda env create -f environment.yml && conda activate dengue-bakery
 
-# Unsupervised learning pipeline (figures + CSV/JSON under outputs/)
+# Unsupervised + supervised pipeline (figures + CSV/JSON under outputs/)
 python run_analysis.py
 
 # Tests
 pytest -q
+
+# Docker (analytics pipeline)
+docker build -t dengue-bakery .
+docker run --rm dengue-bakery
 
 # Interactive walkthrough
 jupyter notebook Dengue_and_Bakery_Analysis.ipynb
@@ -55,6 +62,7 @@ make -C mpi all
 make -C mpi run-pi      # parallel π
 make -C mpi run-mc      # Monte Carlo estimate
 make -C mpi convergence # sweep N + error plot → figures/monte_carlo_relative_error.png
+make -C mpi scaling     # strong scaling → figures/mpi_strong_scaling.png
 ```
 
 HPC / Torque helpers: `torque.sh` (π), `torque2.sh` (Monte Carlo study).
@@ -120,7 +128,8 @@ Full write-up: [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md).
 | Signal | Typical result from `run_analysis.py` |
 | --- | --- |
 | Dengue structure vs label | ARI ≈ **0.42**, NMI ≈ **0.43** (clusters unused `NoYes` at fit time) |
-| Bakery occasions | Interpretable \(K^\star\) ≈ **6** purchase occasions |
+| Supervised companion | Climate → `NoYes` ROC-AUC ≈ **0.95 (LR)** / **0.99 (RF)** (5-fold CV); top feature `h10pix` |
+| Bakery occasions | Interpretable \(K^\star\) ≈ **6** purchase occasions; peak hour ≈ **11** |
 | Top association rule | **Toast → Coffee** (confidence ≈ 0.70, lift ≈ 1.47) |
 | Monte Carlo | Relative error ≈ **0.03%** at \(N=10^7\) (4 ranks) |
 
@@ -130,10 +139,11 @@ After `python run_analysis.py` and `make -C mpi convergence` you should see:
 - `figures/dengue_pca_clusters.png` — regions in PC space  
 - `figures/dengue_cluster_risk.png` — dengue rate by cluster  
 - `figures/dengue_geo_clusters.png` — lon/lat clusters vs historical prevalence  
+- `figures/dengue_supervised_*.png` / `dengue_feature_importance.png` — supervised companion  
 - `figures/bakery_*.png` — basket structure, top items, example occasion  
 - `figures/bakery_temporal_traffic.png` / `bakery_hourly_item_rates.png` / `bakery_cluster_by_hour.png` — time-aware views  
-- `figures/monte_carlo_relative_error.png` — MC convergence  
-- `outputs/summary.json` — selected \(K\), validation scores, top rule, peak hour  
+- `figures/monte_carlo_relative_error.png` / `mpi_strong_scaling.png` — MC accuracy + scaling  
+- `outputs/summary.json` — selected \(K\), validation scores, supervised metrics, top rule, peak hour  
 
 ---
 
@@ -171,4 +181,5 @@ Citations and field dictionaries: [`docs/DATA.md`](docs/DATA.md).
 
 Coursework originally developed for *Métodos Computacionales Avanzados* (Universidad de los Andes). Enhanced as a reproducible portfolio project.
 
-**Author:** Juan David Prada Malagón
+**Author:** Juan David Prada Malagón  
+**License:** [MIT](LICENSE) — see also [`CITATION.cff`](CITATION.cff) for software + dengue data citation.

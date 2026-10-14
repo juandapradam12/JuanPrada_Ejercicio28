@@ -1,0 +1,10 @@
+.git
+.venv
+venv
+__pycache__
+.pytest_cache
+.ipynb_checkpoints
+*.pyc
+outputs/mc_*.txt
+mpi/Listing12.7
+mpi/integra

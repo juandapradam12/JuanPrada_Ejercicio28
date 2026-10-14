@@ -5,7 +5,7 @@ LDFLAGS = -lm
 MPIEXEC ?= mpirun
 NP      ?= 4
 
-.PHONY: all clean run-pi run-mc convergence
+.PHONY: all clean run-pi run-mc convergence scaling
 
 all: Listing12.7 integra
 
@@ -30,5 +30,9 @@ convergence: integra
 	done
 	python3 plots.py
 
+# Strong scaling: wall time / speedup vs ranks
+scaling: integra
+	MPIEXEC=$(MPIEXEC) python3 scaling.py --procs 1 2 4 --n-samples 5000000 --repeats 2
+
 clean:
-	rm -f Listing12.7 integra ../outputs/mc_*.txt
+	rm -f Listing12.7 integra ../outputs/mc_*.txt ../outputs/mpi_scaling.csv

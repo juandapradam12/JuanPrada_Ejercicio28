@@ -9,6 +9,7 @@ from pathlib import Path
 
 from analysis.bakery import analyze_bakery, plot_bakery_diagnostics
 from analysis.dengue import analyze_dengue, external_validation, plot_dengue_diagnostics
+from analysis.supervised import plot_supervised_companion, supervised_dengue_companion
 
 
 def main() -> None:
@@ -16,6 +17,11 @@ def main() -> None:
     parser.add_argument("--data-dir", type=Path, default=Path("data"))
     parser.add_argument("--out-dir", type=Path, default=Path("outputs"))
     parser.add_argument("--figures-dir", type=Path, default=Path("figures"))
+    parser.add_argument(
+        "--skip-supervised",
+        action="store_true",
+        help="Skip the post-clustering supervised dengue companion models",
+    )
     args = parser.parse_args()
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -26,6 +32,21 @@ def main() -> None:
     dengue_ext = external_validation(dengue)
     dengue.metrics.to_csv(args.out_dir / "dengue_cluster_metrics.csv", index=False)
     dengue.data.to_csv(args.out_dir / "dengue_with_clusters.csv", index=False)
+
+    supervised_summary = None
+    if not args.skip_supervised:
+        supervised = supervised_dengue_companion(dengue)
+        supervised_paths = plot_supervised_companion(supervised, args.figures_dir)
+        dengue_paths.update(supervised_paths)
+        supervised.metrics.to_csv(args.out_dir / "dengue_supervised_metrics.csv", index=False)
+        supervised.feature_importance.to_csv(
+            args.out_dir / "dengue_feature_importance.csv", index=False
+        )
+        supervised_summary = {
+            "cv_metrics": supervised.metrics.to_dict(orient="records"),
+            "holdout": supervised.holdout,
+            "top_feature": supervised.feature_importance.iloc[0].to_dict(),
+        }
 
     bakery = analyze_bakery(args.data_dir / "BreadBasket_DMS.csv")
     bakery_paths = plot_bakery_diagnostics(bakery, args.figures_dir)
@@ -49,6 +70,7 @@ def main() -> None:
             "best_k": int(dengue.best_k),
             "pca_variance_ratio": dengue.pca.explained_variance_ratio_.tolist(),
             "external_validation": dengue_ext,
+            "supervised_companion": supervised_summary,
             "figures": {k: str(v) for k, v in dengue_paths.items()},
         },
         "bakery": {

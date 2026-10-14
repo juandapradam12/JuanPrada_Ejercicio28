@@ -36,9 +36,12 @@ jobs:
         run: |
           test -f outputs/summary.json
           test -f figures/dengue_geo_clusters.png
+          test -f figures/dengue_supervised_roc.png
+          test -f figures/dengue_feature_importance.png
           test -f figures/bakery_temporal_traffic.png
           test -f figures/bakery_hourly_item_rates.png
           test -f figures/bakery_cluster_by_hour.png
+          test -f outputs/dengue_supervised_metrics.csv
 
   mpi:
     runs-on: ubuntu-latest
@@ -51,10 +54,17 @@ jobs:
       - name: Install Open MPI and Python
         run: |
           sudo apt-get update
-          sudo apt-get install -y openmpi-bin libopenmpi-dev python3-numpy
+          sudo apt-get install -y openmpi-bin libopenmpi-dev python3-numpy python3-pandas python3-matplotlib python3-pip
+          python3 -m pip install --user pandas matplotlib
 
       - name: Build and smoke-test MPI targets
+        env:
+          OMPI_ALLOW_RUN_AS_ROOT: "1"
+          OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: "1"
         run: |
           make -C mpi all
           mpirun --allow-run-as-root -n 2 ./mpi/Listing12.7 200000
           mpirun --allow-run-as-root -n 2 ./mpi/integra 100000
+          make -C mpi scaling MPIEXEC='mpirun --allow-run-as-root'
+          test -f figures/mpi_strong_scaling.png
+          test -f outputs/mpi_scaling.csv

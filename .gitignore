@@ -28,6 +28,9 @@ outputs/*
 !outputs/bakery_association_rules.csv
 !outputs/bakery_hourly_item_rates.csv
 !outputs/bakery_cluster_hour_share.csv
+!outputs/dengue_supervised_metrics.csv
+!outputs/dengue_feature_importance.csv
+!outputs/mpi_scaling.csv
 *.txt
 !requirements.txt
 mpi/mpi_hello*

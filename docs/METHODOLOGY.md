@@ -50,6 +50,16 @@ Using silhouette avoids the original notebook’s inconsistency (narrative \(K=1
 
 This keeps the workflow honest: clustering remains unsupervised, while we still quantify epidemiological relevance.
 
+### Supervised companion (labels used only here)
+
+After clustering is finished, we fit **logistic regression** and **random forest** on the same climate features to predict `NoYes`:
+
+- Stratified 5-fold CV for ROC-AUC / accuracy / F1  
+- Hold-out ROC + confusion matrix  
+- Feature importance (`|coef|` and RF impurity)  
+
+Cluster labels are **not** used as predictors. The companion answers: “how predictive is the climate structure the clusters are built from?”
+
 ---
 
 ## 2. Bakery basket intelligence

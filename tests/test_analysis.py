@@ -22,6 +22,7 @@ from analysis.dengue import (
     load_dengue,
     plot_dengue_geo,
 )
+from analysis.supervised import plot_supervised_companion, supervised_dengue_companion
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
@@ -129,3 +130,34 @@ def test_analyze_bakery_smoke(tmp_path: Path) -> None:
 def test_monte_carlo_analytical_constant() -> None:
     exact = 0.5 * (np.e * (np.sin(1.0) - np.cos(1.0)) + 1.0)
     assert exact == pytest.approx(0.9093306736, rel=1e-9)
+
+
+def test_supervised_companion(tmp_path: Path) -> None:
+    result = analyze_dengue(DATA / "dengue.csv", k_min=2, k_max=3)
+    supervised = supervised_dengue_companion(result, n_splits=3)
+    assert set(supervised.metrics["model"]) == {"logistic_regression", "random_forest"}
+    assert supervised.metrics["roc_auc_mean"].min() > 0.7
+    assert {"feature", "logistic_abs_coef", "random_forest_importance"} <= set(
+        supervised.feature_importance.columns
+    )
+    paths = plot_supervised_companion(supervised, tmp_path)
+    assert paths["roc"].exists()
+    assert paths["importance"].exists()
+
+
+def test_scaling_parser_helpers() -> None:
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("scaling", ROOT / "mpi" / "scaling.py")
+    assert spec is not None and spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    sample = (
+        "N=1000000 procs=4 estimate=0.9090887083 exact=0.9093306736 "
+        "rel_error=0.026609% time=0.0134s\n"
+    )
+    m = mod.TIME_RE.search(sample)
+    assert m is not None
+    assert int(m.group("procs")) == 4
+    assert float(m.group("time")) == pytest.approx(0.0134)

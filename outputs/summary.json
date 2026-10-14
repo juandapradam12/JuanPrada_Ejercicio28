@@ -11,11 +11,50 @@
       "normalized_mutual_info": 0.4299273430220014,
       "dengue_rate_by_cluster": 0.34467655266348857
     },
+    "supervised_companion": {
+      "cv_metrics": [
+        {
+          "model": "logistic_regression",
+          "roc_auc_mean": 0.9457792504687866,
+          "roc_auc_std": 0.007774755685731515,
+          "accuracy_mean": 0.8892219282812045,
+          "accuracy_std": 0.01626318743740127,
+          "f1_mean": 0.8766963792786377,
+          "f1_std": 0.01685880454357871
+        },
+        {
+          "model": "random_forest",
+          "roc_auc_mean": 0.9869399175539509,
+          "roc_auc_std": 0.0024155737097092626,
+          "accuracy_mean": 0.9441071858030708,
+          "accuracy_std": 0.004901022824098694,
+          "f1_mean": 0.9338646976667736,
+          "f1_std": 0.006001509575131995
+        }
+      ],
+      "holdout": {
+        "logistic_regression_roc_auc": 0.9359089847529443,
+        "random_forest_roc_auc": 0.9816501518032897,
+        "logistic_regression_accuracy": 0.8611670020120724,
+        "random_forest_accuracy": 0.93158953722334,
+        "logistic_regression_f1": 0.8463251670378619,
+        "random_forest_f1": 0.919431279620853
+      },
+      "top_feature": {
+        "feature": "h10pix",
+        "logistic_abs_coef": 3.0323835439129336,
+        "random_forest_importance": 0.3412548497915676
+      }
+    },
     "figures": {
       "diagnostics": "figures/dengue_cluster_diagnostics.png",
       "pca": "figures/dengue_pca_clusters.png",
       "risk": "figures/dengue_cluster_risk.png",
-      "geo": "figures/dengue_geo_clusters.png"
+      "geo": "figures/dengue_geo_clusters.png",
+      "cv_metrics": "figures/dengue_supervised_cv.png",
+      "roc": "figures/dengue_supervised_roc.png",
+      "importance": "figures/dengue_feature_importance.png",
+      "confusion": "figures/dengue_supervised_confusion.png"
     }
   },
   "bakery": {

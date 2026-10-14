@@ -23,9 +23,18 @@ Interactive mode (original textbook style): run without arguments and enter inte
 ```bash
 mpirun -n 4 ./mpi/integra 1000000
 make -C mpi convergence   # N-sweep + figures/monte_carlo_relative_error.png
+make -C mpi scaling       # strong scaling → figures/mpi_strong_scaling.png
 ```
 
 Stdout of `integra` is the estimate only (easy to capture in files). Diagnostics go to stderr.
+
+### Strong scaling
+
+`mpi/scaling.py` runs a fixed \(N\) across ranks `{1,2,4}`, averages wall time, and plots speedup vs ideal. Override with:
+
+```bash
+python3 mpi/scaling.py --procs 1 2 4 8 --n-samples 8000000 --repeats 3
+```
 
 ## Cluster scripts
 
