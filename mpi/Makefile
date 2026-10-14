@@ -31,8 +31,9 @@ convergence: integra
 	python3 plots.py
 
 # Strong scaling: wall time / speedup vs ranks
+# Quote MPIEXEC so values like `mpirun --allow-run-as-root` survive Make/shell.
 scaling: integra
-	MPIEXEC=$(MPIEXEC) python3 scaling.py --procs 1 2 4 --n-samples 5000000 --repeats 2
+	MPIEXEC="$(MPIEXEC)" python3 scaling.py --mpiexec "$(MPIEXEC)" --procs 1 2 4 --n-samples 5000000 --repeats 2
 
 clean:
 	rm -f Listing12.7 integra ../outputs/mc_*.txt ../outputs/mpi_scaling.csv

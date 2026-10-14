@@ -27,9 +27,13 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run unit tests
+        env:
+          PYTHONPATH: .
         run: pytest -q
 
       - name: Run full analysis pipeline
+        env:
+          PYTHONPATH: .
         run: python run_analysis.py
 
       - name: Check expected artifacts

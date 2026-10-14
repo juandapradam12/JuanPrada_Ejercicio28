@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import shlex
 import subprocess
 from pathlib import Path
 
@@ -25,7 +26,8 @@ TIME_RE = re.compile(
 
 
 def run_once(n_samples: int, procs: int, mpiexec: str) -> dict:
-    cmd = [mpiexec, "-n", str(procs), str(MPI_DIR / "integra"), str(n_samples)]
+    launcher = shlex.split(mpiexec)
+    cmd = [*launcher, "-n", str(procs), str(MPI_DIR / "integra"), str(n_samples)]
     # Open MPI in CI/root environments often needs this flag.
     env = os.environ.copy()
     if "OMPI_ALLOW_RUN_AS_ROOT" not in env:
