@@ -147,6 +147,7 @@ def test_supervised_companion(tmp_path: Path) -> None:
 
 def test_scaling_parser_helpers() -> None:
     import importlib.util
+    from pathlib import Path as _Path
 
     spec = importlib.util.spec_from_file_location("scaling", ROOT / "mpi" / "scaling.py")
     assert spec is not None and spec.loader is not None
@@ -161,3 +162,7 @@ def test_scaling_parser_helpers() -> None:
     assert m is not None
     assert int(m.group("procs")) == 4
     assert float(m.group("time")) == pytest.approx(0.0134)
+
+    cmd = mod._launcher_cmd("mpirun", 4, _Path("/tmp/integra"), 1000)
+    assert "--oversubscribe" in cmd
+    assert cmd[-2:] == ["/tmp/integra", "1000"]

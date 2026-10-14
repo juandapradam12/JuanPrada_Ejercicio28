@@ -25,9 +25,17 @@ TIME_RE = re.compile(
 )
 
 
-def run_once(n_samples: int, procs: int, mpiexec: str) -> dict:
+def _launcher_cmd(mpiexec: str, procs: int, binary: Path, n_samples: int) -> list[str]:
+    """Build an mpirun/mpiexec command that works on small CI VMs."""
     launcher = shlex.split(mpiexec)
-    cmd = [*launcher, "-n", str(procs), str(MPI_DIR / "integra"), str(n_samples)]
+    # Open MPI on 2-core GitHub runners rejects -n 4 unless oversubscribed.
+    if launcher and "mpi" in Path(launcher[0]).name and "--oversubscribe" not in launcher:
+        launcher.append("--oversubscribe")
+    return [*launcher, "-n", str(procs), str(binary), str(n_samples)]
+
+
+def run_once(n_samples: int, procs: int, mpiexec: str) -> dict:
+    cmd = _launcher_cmd(mpiexec, procs, MPI_DIR / "integra", n_samples)
     # Open MPI in CI/root environments often needs this flag.
     env = os.environ.copy()
     if "OMPI_ALLOW_RUN_AS_ROOT" not in env:
