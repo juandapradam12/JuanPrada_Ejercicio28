@@ -1,8 +1,14 @@
-# Dengue Risk Clustering & Bakery Basket Intelligence
+# Unsupervised Learning Lab
 
-**Unsupervised learning + parallel numerical computing** on two real datasets: climatic drivers of dengue prevalence, and retail purchase occasions in a bakery.
+A reproducible lab for **unsupervised learning and data mining**: clustering, association rules, model selection, and a parallel Monte Carlo companion.
 
-This repository turns exploratory coursework into a **reproducible analytics package**: clean data pipelines, stronger model selection, association rules, MPI Monte Carlo integration, and documentation you can hand to a collaborator or recruiter.
+Case studies included:
+
+1. **Dengue / climate** — structure in regional climate & land-cover features  
+2. **Bakery baskets** — purchase occasions and item affinities  
+3. **MPI Monte Carlo** — parallel integration with variance reduction  
+
+Originally coursework for *Métodos Computacionales Avanzados*; reworked as a portfolio-ready analytics package.
 
 ---
 
