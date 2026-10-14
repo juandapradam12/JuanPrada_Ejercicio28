@@ -189,8 +189,5 @@ Citations and field dictionaries: [`docs/DATA.md`](docs/DATA.md).
 Coursework originally developed for *Métodos Computacionales Avanzados* (Universidad de los Andes). Enhanced as a reproducible portfolio project.
 
 **Author:** Juan David Prada Malagón  
-**Repository:** [`unsupervised-learning-lab`](https://github.com/juandapradam12/unsupervised-learning-lab)  
+**Repository:** [`UnsupervisedLearningLab`](https://github.com/juandapradam12/UnsupervisedLearningLab)  
 **License:** [MIT](LICENSE) — see also [`CITATION.cff`](CITATION.cff) for software + dengue data citation.
-
-> If the GitHub repo still shows the old coursework name, rename it under  
-> **Settings → General → Repository name** to `unsupervised-learning-lab`.
