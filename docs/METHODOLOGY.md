@@ -18,7 +18,7 @@ Rows with missing values in these columns or in `NoYes` are dropped. Features ar
 
 ### Models compared
 
-For each \(K \in [2, 12]\):
+For each $K \in [2, 12]$:
 
 | Model | Role |
 | --- | --- |
@@ -30,15 +30,15 @@ For each \(K \in [2, 12]\):
 
 - **Primary:** maximize silhouette score for K-Means  
 - **Reported:** inertia elbow curve; Calinski–Harabasz index  
-- Final labels come from K-Means at \(K^\star\)
+- Final labels come from K-Means at $K^\star$
 
-Using silhouette avoids the original notebook’s inconsistency (narrative \(K=14\), fitted \(K=19\)).
+Using silhouette avoids the original notebook’s inconsistency (narrative $K=14$, fitted $K=19$).
 
 ### Visualization & profiling
 
 - 2D **PCA** embedding of the scaled matrix  
 - Per-cluster means of climate features and of `NoYes` (risk profile)  
-- **Geographic map** of region midpoints \(((X_{\min}+X_{\max})/2,\ (Y_{\min}+Y_{\max})/2)\) colored by cluster and by `NoYes` side-by-side
+- **Geographic map** of region midpoints $\left(\frac{X_{\min}+X_{\max}}{2},\ \frac{Y_{\min}+Y_{\max}}{2}\right)$ colored by cluster and by `NoYes` side-by-side
 
 ### External validation (not used for fitting)
 
@@ -83,11 +83,11 @@ Represent transactions as item baskets, find purchase occasions, and surface pro
 ### Clustering
 
 - L2-normalize baskets, reduce with **TruncatedSVD** (~25 components), then K-Means++  
-- Sweep \(K \in [2, 15]\); report silhouette, inertia, and Calinski–Harabasz  
-- Select an interpretable \(K^\star\) with an **inertia knee** (windowed Calinski–Harabasz tie-break), not a blindly maximizing silhouette (which can drift toward the largest \(K\))  
+- Sweep $K \in [2, 15]$; report silhouette, inertia, and Calinski–Harabasz  
+- Select an interpretable $K^\star$ with an **inertia knee** (windowed Calinski–Harabasz tie-break), not a blindly maximizing silhouette (which can drift toward the largest $K$)  
 - Interpret each cluster as a **purchase occasion** via top item counts  
 
-The original draft explored \(K \in [80, 100]\) and reported \(K=97\), which over-fragments ~9k transactions and yields unstable “occasions”.
+The original draft explored $K \in [80, 100]$ and reported $K=97$, which over-fragments ~9k transactions and yields unstable “occasions”.
 
 ### Association rules (FP-Growth)
 
@@ -116,9 +116,9 @@ Each basket keeps its first observed timestamp. From that we report:
 
 Estimates
 
-\[
-\pi \approx \int_0^1 \frac{4}{1+x^2}\,dx
-\]
+$$
+\pi \approx \int_{0}^{1} \frac{4}{1+x^{2}}\,dx
+$$
 
 Intervals are striped across ranks; partial sums reduce with `MPI_SUM`. Non-interactive CLI mode: `./Listing12.7 <n_intervals>`.
 
@@ -126,23 +126,22 @@ Intervals are striped across ranks; partial sums reduce with `MPI_SUM`. Non-inte
 
 Estimates
 
-\[
-I = \int_0^1 e^{x}\sin(x)\,dx
-= \frac12\bigl(e(\sin 1 - \cos 1) + 1\bigr)
-\]
+$$
+I = \int_{0}^{1} e^{x}\sin(x)\,dx = \frac{1}{2}\big(e(\sin 1 - \cos 1) + 1\big)
+$$
 
-with uniform samples on \([0,1]\). Each rank draws a share of \(N\) samples (`rand_r` with distinct seeds); sums reduce to rank 0.
+with uniform samples on $[0,1]$. Each rank draws a share of $N$ samples (`rand_r` with distinct seeds); sums reduce to rank 0.
 
 Optional variance-reduction methods (CLI arg):
 
 | Method | Estimator idea |
 | --- | --- |
-| `crude` | \(f(U),\ U\sim U(0,1)\) |
-| `antithetic` | \(\tfrac12\bigl(f(U)+f(1-U)\bigr)\) |
-| `control` | \(f(U)-c(e^{U}-(e-1))\) |
-| `importance` | Sample \(Y\sim g(y)=2y\), weight \(f(Y)/g(Y)\) |
+| `crude` | $f(U),\ U\sim U(0,1)$ |
+| `antithetic` | $\frac{1}{2}\big(f(U)+f(1-U)\big)$ |
+| `control` | $f(U)-c\big(e^{U}-(e-1)\big)$ |
+| `importance` | Sample $Y\sim g(y)=2y$, weight $f(Y)/g(Y)$ |
 
-`make -C mpi vr` compares relative error vs \(N\) across methods.
+`make -C mpi vr` compares relative error vs $N$ across methods.
 
 ### Bugs fixed in the original `integra.c`
 
@@ -150,10 +149,10 @@ Optional variance-reduction methods (CLI arg):
 | --- | --- | --- |
 | `f()` computed `exp(x)*sin(x)` without `return` | Undefined estimates | Return the integrand |
 | `malloc(sizeof(double *)*N)` | Wrong allocation size | Stream samples without storing full arrays |
-| MPI init without work split / reduce | No real parallelism | Partition \(N\), `MPI_Reduce` |
-| Torque loop wrote `1000` for every \(N\) | Fake “convergence” study | Pass the loop variable as \(N\) |
+| MPI init without work split / reduce | No real parallelism | Partition $N$, `MPI_Reduce` |
+| Torque loop wrote `1000` for every $N$ | Fake “convergence” study | Pass the loop variable as $N$ |
 
-Convergence plotting (`mpi/plots.py`) overlays empirical relative error against an \(O(N^{-1/2})\) reference.
+Convergence plotting (`mpi/plots.py`) overlays empirical relative error against an $O(N^{-1/2})$ reference.
 
 ---
 
@@ -171,4 +170,4 @@ Artifacts:
 - `outputs/summary.json`  
 - `outputs/*_metrics.csv`, association rules, clustered tables  
 
-Random seeds are fixed (`random_state=42`) for sklearn estimators. Monte Carlo remains stochastic by design; increasing \(N\) tightens the error.
+Random seeds are fixed (`random_state=42`) for sklearn estimators. Monte Carlo remains stochastic by design; increasing $N$ tightens the error.
