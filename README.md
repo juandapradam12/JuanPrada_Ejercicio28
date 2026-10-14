@@ -14,26 +14,61 @@ Originally coursework for *Métodos Computacionales Avanzados*; reworked as a po
 
 ## Why this project matters
 
-| Problem | What the models deliver |
+Real datasets rarely arrive with clean labels. This lab asks three practical questions and answers them with structure you can see.
+
+| Question | What we learn |
 | --- | --- |
-| Where is dengue pressure structurally higher? | Climate/land-cover **clusters** of administrative regions, validated against historical presence without leaking the label into training |
-| What do customers buy together? | **Purchase-occasion clusters**, PCA views of basket structure, and **association rules** (support / confidence / lift) for merchandising |
-| How reliable is parallel Monte Carlo? | MPI estimators for a known integral, with an empirical $O(N^{-1/2})$ convergence check |
+| Where is dengue pressure structurally higher? | Climate/land-cover regimes that align with historical presence — without using that label to form the clusters |
+| What do customers buy together? | Purchase occasions and product affinities a bakery can act on |
+| How reliable is the numerics? | Parallel Monte Carlo with an empirical $O(N^{-1/2})$ check and variance-reduction bake-off |
+
+### 1. Climate regimes, not just a dengue label
+
+Unsupervised clusters carve the map into climatic regimes. Side-by-side with historical prevalence, the structure is visible — and only afterward do we ask how predictive those same features are.
+
+<p align="center">
+  <img src="figures/dengue_geo_clusters.png" alt="Dengue clusters vs historical prevalence on a geographic map" width="900" />
+</p>
+
+<p align="center">
+  <img src="figures/dengue_cluster_risk.png" alt="Mean dengue prevalence by unsupervised cluster" width="520" />
+  &nbsp;
+  <img src="figures/dengue_supervised_roc.png" alt="Hold-out ROC for supervised companion models" width="360" />
+</p>
+
+### 2. Baskets that behave like occasions
+
+Tickets become occasions: coffee-led mornings, pastry combos, tea-and-snack patterns. FP-Growth surfaces affinities; the clock shows *when* those occasions dominate.
+
+<p align="center">
+  <img src="figures/bakery_item_cooccurrence.png" alt="Top bakery item co-occurrence heatmap" width="420" />
+  &nbsp;
+  <img src="figures/bakery_hourly_item_rates.png" alt="Top-item basket rates by hour of day" width="460" />
+</p>
+
+<p align="center">
+  <img src="figures/bakery_temporal_traffic.png" alt="Bakery traffic by hour and weekday" width="900" />
+</p>
+
+### 3. Numbers you can defend
+
+The MPI companion is not decoration: it shows convergence, compares variance-reduction strategies, and measures parallel speedup.
+
+<p align="center">
+  <img src="figures/monte_carlo_variance_reduction.png" alt="Monte Carlo variance reduction comparison" width="480" />
+  &nbsp;
+  <img src="figures/mpi_strong_scaling.png" alt="MPI strong scaling wall time and speedup" width="480" />
+</p>
 
 ---
 
 ## Highlights
 
-- **Dengue clustering** with K-Means++, Gaussian Mixtures, and Agglomerative clustering; K chosen by silhouette (elbow + Calinski–Harabasz reported)
-- **Geospatial dengue map** of clusters vs historical prevalence in lon/lat space
-- **External validation** (Adjusted Rand Index / NMI) against `NoYes` dengue prevalence
-- **Supervised companion** — logistic regression + random forest on climate features → `NoYes` (labels never used in clustering)
-- **Bakery basket mining** with SVD occasions, **FP-Growth** association rules, co-occurrence heatmaps, and **time-of-day / weekday** traffic
-- **MPI programs**: rectangle-rule $\pi$, Monte Carlo for $\int_{0}^{1} e^{x}\sin(x)\,dx$ with **variance reduction** (antithetic / control / importance) and **strong-scaling**
-- **Tests + CI**: `pytest` and GitHub Actions for the Python pipeline and MPI smoke/scaling builds
-- **Packaging**: `Dockerfile`, `environment.yml`, MIT `LICENSE`, `CITATION.cff`
-- **One-command reproduction**: `python run_analysis.py` and `make -C mpi convergence`
-- Datasets vendored under `data/` — **no Google Drive / Colab mount required**
+- Dengue clustering with K-Means++ / GMM / Agglomerative, silhouette selection, geo map, and external validation (ARI / NMI)
+- Supervised companion (LR + RF) on climate → `NoYes` — labels unused during clustering
+- Bakery occasions via TruncatedSVD + K-Means, **FP-Growth** rules, co-occurrence and time-of-day views
+- MPI Monte Carlo for $\int_{0}^{1} e^{x}\sin(x)\,dx$ with antithetic / control / importance sampling and strong scaling
+- Tests, GitHub Actions, `Dockerfile`, `environment.yml`, MIT license, vendored data under `data/`
 
 ---
 
