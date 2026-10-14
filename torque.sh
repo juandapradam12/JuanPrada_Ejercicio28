@@ -2,7 +2,7 @@
 #PBS -l nodes=1:ppn=4,mem=1gb,walltime=00:10:00
 #PBS -M jd.prada11@uniandes.edu.co
 #PBS -m abe
-#PBS -N JuanPrada_Ejercicio28_Pi
+#PBS -N unsupervised-learning-lab-pi
 
 # Parallel π integration (MPI rectangle rule).
 # Local:  chmod u+x torque.sh && ./torque.sh

@@ -2,7 +2,7 @@
 #PBS -l nodes=1:ppn=4,mem=1gb,walltime=00:20:00
 #PBS -M jd.prada11@uniandes.edu.co
 #PBS -m abe
-#PBS -N JuanPrada_Ejercicio28_MC
+#PBS -N unsupervised-learning-lab-mc
 
 # Monte Carlo convergence study + error plot.
 # Local:  chmod u+x torque2.sh && ./torque2.sh

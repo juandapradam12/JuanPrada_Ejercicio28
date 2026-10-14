@@ -13,5 +13,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Default: run the unsupervised + supervised analytics pipeline
+# Unsupervised Learning Lab — default analytics pipeline
 CMD ["python", "run_analysis.py"]

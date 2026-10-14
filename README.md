@@ -43,7 +43,7 @@ Originally coursework for *Métodos Computacionales Avanzados*; reworked as a po
 # Python environment
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-# or: conda env create -f environment.yml && conda activate dengue-bakery
+# or: conda env create -f environment.yml && conda activate unsupervised-learning-lab
 
 # Unsupervised + supervised pipeline (figures + CSV/JSON under outputs/)
 python run_analysis.py
@@ -52,8 +52,8 @@ python run_analysis.py
 pytest -q
 
 # Docker (analytics pipeline)
-docker build -t dengue-bakery .
-docker run --rm dengue-bakery
+docker build -t unsupervised-learning-lab .
+docker run --rm unsupervised-learning-lab
 
 # Interactive walkthrough
 jupyter notebook Dengue_and_Bakery_Analysis.ipynb
@@ -189,4 +189,8 @@ Citations and field dictionaries: [`docs/DATA.md`](docs/DATA.md).
 Coursework originally developed for *Métodos Computacionales Avanzados* (Universidad de los Andes). Enhanced as a reproducible portfolio project.
 
 **Author:** Juan David Prada Malagón  
+**Repository:** [`unsupervised-learning-lab`](https://github.com/juandapradam12/unsupervised-learning-lab)  
 **License:** [MIT](LICENSE) — see also [`CITATION.cff`](CITATION.cff) for software + dengue data citation.
+
+> If the GitHub repo still shows the old coursework name, rename it under  
+> **Settings → General → Repository name** to `unsupervised-learning-lab`.
